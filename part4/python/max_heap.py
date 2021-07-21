@@ -1,65 +1,60 @@
-import math
-
-class MaxHeap():
-    heap = []
-    def __init__(self, init_heap = []):
-        self.heap = init_heap.copy()
-
-    def insert(self, x: int):
-        if len(self.heap) == 0:
-            self.heap.append(x)
+import sys
+class MaxHeap:
+    def __init__(self):
+        self.heap_list = [0]
+        self.current_size = 0
+ 
+    def sift_up(self, i):
+        while i // 2 > 0:
+            if self.heap_list[i] > self.heap_list[i // 2]:
+                self.heap_list[i], self.heap_list[i // 2] = self.heap_list[i // 2], self.heap_list[i]
+            i = i // 2
+ 
+    def insert(self, k):
+        self.heap_list.append(k)
+        self.current_size += 1
+        self.sift_up(self.current_size)
+ 
+    def sift_down(self, i):
+        while (i * 2) <= self.current_size:
+            mc = self.max_child(i)
+            if self.heap_list[i] < self.heap_list[mc]:
+                self.heap_list[i], self.heap_list[mc] = self.heap_list[mc], self.heap_list[i]
+            i = mc
+ 
+    def max_child(self, i):
+        if (i * 2)+1 > self.current_size:
+            return i * 2
         else:
-            self.heap.append(x)
-            self.sift_up(len(self.heap) - 1)
-    
-    def get_max(self):
-        if len(self.heap) < 0:
-            return None
-        return self.heap[0];
-    
-    def extract_max(self):
-        if len(self.heap) < 0:
-            return None
-        max_value = self.heap[0]
-        self.heap[0] = self.heap[-1]
-        del self.heap[-1]
-        self.sift_down(0)
-        return max_value
-    
-    def sift_up(self, leaf_i):
-        parent_i = math.floor((leaf_i - 1) / 2)
-        while 0 <= parent_i < len(self.heap) and self.heap[leaf_i] > self.heap[parent_i]:
-            self.heap[parent_i], self.heap[leaf_i] = self.heap[leaf_i], self.heap[parent_i]
-            leaf_i = parent_i
-            parent_i = math.floor((leaf_i - 1) / 2)
-    
-    def sift_down(self, leaf_i):
-        child_left_i, child_right_i = 2*leaf_i + 1, 2*leaf_i + 2
-        while child_left_i < len(self.heap) and child_right_i < len(self.heap):
-            if self.heap[leaf_i] <= self.heap[child_left_i]:
-                if self.heap[child_right_i] > self.heap[child_left_i]:
-                    self.heap[leaf_i], self.heap[child_right_i] = self.heap[child_right_i], self.heap[leaf_i]
-                    leaf_i = child_right_i
-                else:
-                    self.heap[leaf_i], self.heap[child_left_i] = self.heap[child_left_i], self.heap[leaf_i]
-                    leaf_i = child_left_i
-            elif self.heap[leaf_i] <= self.heap[child_right_i]:
-                if self.heap[child_left_i] > self.heap[child_right_i]:
-                    self.heap[leaf_i], self.heap[child_left_i] = self.heap[child_left_i], self.heap[leaf_i]
-                    leaf_i = child_left_i
-                else:
-                    self.heap[leaf_i], self.heap[child_right_i] = self.heap[child_right_i], self.heap[leaf_i]
-                    leaf_i = child_right_i
+            if self.heap_list[i*2] > self.heap_list[(i*2)+1]:
+                return i * 2
             else:
-                break
-            child_left_i, child_right_i = 2*leaf_i + 1, 2*leaf_i + 2
-
+                return (i * 2) + 1
+ 
+    def delete_max(self):
+        if len(self.heap_list) == 1:
+            return None
+        root = self.heap_list[1]
+        self.heap_list[1] = self.heap_list[self.current_size]
+        del self.heap_list[self.current_size]
+        # *self.heap_list, _ = self.heap_list
+        self.current_size -= 1
+        self.sift_down(1)
+        return root
+    
     def print_heap(self):
-        print(self.heap)
+        print(self.heap_list[1:])
 
-h1 = MaxHeap([7,6,5,4,3,2,1])
-h1.print_heap()
-h1.insert(100)
-h1.print_heap()
-print(h1.extract_max())
-h1.print_heap()
+
+heap = MaxHeap()
+n = int(sys.stdin.readline())
+
+for _ in range(n):
+    inp = sys.stdin.readline().rstrip("\n")
+    # print(inp)
+    if inp == "ExtractMax":
+        print(heap.delete_max())
+    else:
+        value = int(inp.split(" ")[1])
+        heap.insert(value)
+    # heap.print_heap()
